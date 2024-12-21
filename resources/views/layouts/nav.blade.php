@@ -22,8 +22,25 @@
 
             <hr class="d-md-none text-white-50">
 
-            <a href="{{ route('profile') }}" class="btn btn-outline-light my-2 ms-md-auto"><i
-                    class="bi-person-circle me-1"></i> My Profile</a>
+            <a id="navbarDropdown" class="nav-link dropdown-toggle my-2 ms-md-auto text-light" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                {{ Auth::user()->name }}
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-end my-2" aria-labelledby="navbarDropdown">
+                <a href="{{ route('profile') }}" class="dropdown-item"><i
+                    class="bi-person-fill me-1"></i> My Profile</a>
+                    <hr>
+                <a class="dropdown-item text-danger" href="{{ route('logout') }}"
+                   onclick="event.preventDefault();
+                                 document.getElementById('logout-form').submit();">
+                    <i class="bi bi-lock-fill me-1"></i>
+                    {{ __('Logout') }}
+                </a>
+
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
         </div>
     </div>
 </nav>

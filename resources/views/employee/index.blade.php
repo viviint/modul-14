@@ -12,6 +12,11 @@
                         <a href="{{ route('employees.exportExcel') }}" class="btn btn-outline-success">
                             <i class="bi bi-download me-1"></i> to Excel
                         </a>
+                    <li class="list-inline-item">
+                        <a href="{{ route('employees.exportPdf') }}" class="btn btn-outline-danger">
+                            <i class="bi bi-download me-1"></i> to PDF
+                        </a>
+                    </li>
                     </li>
                     <li class="list-inline-item">|</li>
                     <li class="list-inline-item">

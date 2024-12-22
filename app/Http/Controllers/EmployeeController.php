@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Employee;
 use App\Models\Position;
 use RealRashid\SweetAlert\Facades\Alert;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\EmployeesExport;
+use PDF;
 
 class EmployeeController extends Controller
 {
@@ -77,7 +81,7 @@ class EmployeeController extends Controller
             $encryptedFilename = $file->hashName();
 
             // Store File
-            $file->store('public/files');
+            $file->store('files', 'public');
         }
 
         // ELOQUENT
@@ -157,13 +161,30 @@ class EmployeeController extends Controller
         $employee->email = $request->email;
         $employee->age = $request->age;
         $employee->position_id = $request->position;
+
+        if ($request->hasFile('cv')) {
+            if (Storage::disk('public')->exists('files/' . $employee->encrypted_filename)) {
+                Storage::disk('public')->delete('files/' . $employee->encrypted_filename);
+            }
+
+            $file = $request->file('cv');
+
+            $originalFilename = $file->getClientOriginalName();
+            $encryptedFilename = $file->hashName();
+
+            $file->store('files', 'public');
+
+            $employee->original_filename = $originalFilename;
+            $employee->encrypted_filename = $encryptedFilename;
+        }
+
         $employee->save();
 
         Alert::success('Changed Successfully', 'Employee Data Changed Successfully.');
 
         return redirect()->route('employees.index');
-
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -171,7 +192,13 @@ class EmployeeController extends Controller
     public function destroy(string $id)
     {
         // ELOQUENT
-        Employee::find($id)->delete();
+        $employee = Employee::find($id);
+
+        if (Storage::disk('public')->exists('files/' . $employee->encrypted_filename)) {
+            Storage::disk('public')->delete('files/' . $employee->encrypted_filename);
+        }
+
+        $employee->delete();
 
         Alert::success('Deleted Successfully', 'Employee Data Deleted Successfully.');
 
@@ -203,4 +230,20 @@ class EmployeeController extends Controller
                 ->toJson();
         }
     }
+
+    public function exportExcel()
+{
+    return Excel::download(new EmployeesExport, 'employees.xlsx');
+}
+
+public function exportPdf()
+{
+    $employees = Employee::all();
+
+    $pdf = PDF::loadView('employee.export_pdf', compact('employees'));
+
+    return $pdf->download('employees.pdf');
+}
+
+
 }

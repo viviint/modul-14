@@ -2,7 +2,8 @@
 
 @section('content')
     <div class="container-sm my-5">
-        <form action="{{ route('employees.update', ['employee' => $employee->id]) }}" method="POST">
+        <form action="{{ route('employees.update', ['employee' => $employee->id]) }}" method="POST"
+            enctype="multipart/form-data">
             @csrf
             @method('put')
             <div class="row justify-content-center">
@@ -70,7 +71,27 @@
                             @error('position')
                                 <div class="text-danger"><small>{{ $message }}</small></div>
                             @enderror
+                            <div class="my-3">
+                                <label for="cv" class="form-label">Curriculum Vitae (CV)</label>
+                                @if ($employee->encrypted_filename)
+                                    <div class="mb-2">
+                                        <a href="{{ asset('storage/files/' . $employee->encrypted_filename) }}"
+                                            class="btn btn-primary" download>
+                                            <i class="bi-download"></i> Download
+                                        </a>
+                                    </div>
+                                @else
+                                    <p><strong>Tidak ada</strong></p>
+                                @endif
+                                <input class="form-control @error('cv') is-invalid @enderror" type="file" name="cv"
+                                    id="cv">
+                                @error('cv')
+                                    <div class="text-danger"><small>{{ $message }}</small></div>
+                                @enderror
+                            </div>
+
                         </div>
+
                     </div>
                     <hr>
                     <div class="row">

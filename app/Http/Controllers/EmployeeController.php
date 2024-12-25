@@ -23,8 +23,11 @@ class EmployeeController extends Controller
         $pageTitle = 'Employee List';
 
         confirmDelete();
-
-        return view('employee.index', compact('pageTitle'));
+        $positions = Position::all();
+        return view('employee.index', [
+            'pageTitle' => $pageTitle,
+            'positions' => $positions
+        ]);
 
         // $pageTitle = 'Employee List';
 
@@ -185,7 +188,6 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index');
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -232,18 +234,16 @@ class EmployeeController extends Controller
     }
 
     public function exportExcel()
-{
-    return Excel::download(new EmployeesExport, 'employees.xlsx');
-}
+    {
+        return Excel::download(new EmployeesExport(), 'employees.xlsx');
+    }
 
-public function exportPdf()
-{
-    $employees = Employee::all();
+    public function exportPdf()
+    {
+        $employees = Employee::all();
 
-    $pdf = PDF::loadView('employee.export_pdf', compact('employees'));
+        $pdf = PDF::loadView('employee.export_pdf', compact('employees'));
 
-    return $pdf->download('employees.pdf');
-}
-
-
+        return $pdf->download('employees.pdf');
+    }
 }
